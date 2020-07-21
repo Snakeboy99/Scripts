@@ -1,8 +1,52 @@
-local ESP = {Tracers = {},ESPBox = {},ESPText = {}}
-
 if not game.Loaded then 
 	repeat wait() until game:IsLoaded() 
 end
+
+local ESP = {Tracers = {},ESPBox = {},ESPText = {}};
+
+local Toggle = {
+	["Visibility"] = false;
+	["TeamCheck"] = false;
+	["RainbowTracer"] = false;
+}
+
+local Library = loadstring(game:HttpGet"https://fluxteam.xyz/external-files/lib.lua")()
+
+local ESPWindow = Library:CreateWindow("ESP")
+ 
+ESPWindow:AddToggle("Tracers", function()
+	Toggle.Visibility = not Toggle.Visibility
+end)
+
+ESPWindow:AddToggle("Team Check", function()
+	Toggle.TeamCheck = not Toggle.TeamCheck
+end)
+
+ESPWindow:AddToggle("Rainbow", function()
+	Toggle.RainbowTracer = not Toggle.RainbowTracer
+end)
+
+spawn(function()
+	while wait() do
+		for i,v in pairs(ESP.Tracers) do
+			if v.Char and v.Tracer then
+				if v.Tracer and Toggle.TeamCheck and Toggle.RainbowTracer then
+					v.Tracer.Color = Color3.fromRGB(255,255,255)
+				else
+					if v.Tracer and not Toggle.TeamCheck and not Toggle.RainbowTracer then
+						v.Tracer.Color = Color3.fromRGB(255,255,255)
+					else
+						if v.Tracer and Toggle.TeamCheck then
+							v.Tracer.Color = v.TeamRGB
+						elseif v.Tracer and Toggle.RainbowTracer then
+							v.Tracer.Color = Color3.fromHSV(tick()%5/5, 1, 1)
+						end
+					end
+				end
+			end
+		end
+	end
+end)
 
 local Players = game:GetService("Players");
 local LocalPlayer = Players.LocalPlayer;
@@ -35,10 +79,11 @@ function charAdded(plr)
 	local Line = Drawing.new("Line")
 	Line.From = Vector2.new(currentCamera.ViewportSize.X / 2, currentCamera.ViewportSize.Y);
 	Line.Color = plr.TeamColor.Color or Color3.fromRGB(255,255,255)
-	Line.Transparency = .4
+	Line.Transparency = .6
 	Line.Thickness = 2
 
 	ESP.Tracers[#ESP.Tracers + 1] = {
+		player = plr;
 		Tracer = Line;
 		name = plr.Name;
 		Char = plr.Character;
@@ -57,10 +102,11 @@ for i,v in pairs(Players:GetPlayers()) do
 			local Line = Drawing.new("Line")
 			Line.From = Vector2.new(currentCamera.ViewportSize.X / 2, currentCamera.ViewportSize.Y);
 			Line.Color = v.TeamColor.Color or Color3.fromRGB(255,255,255)
-			Line.Transparency = .4
+			Line.Transparency = .6
 			Line.Thickness = 2
 					
 			ESP.Tracers[#ESP.Tracers + 1] = {
+				player = v;
 				Tracer = Line;
 				name = v.Name;
 				Char = char;
@@ -73,7 +119,7 @@ for i,v in pairs(Players:GetPlayers()) do
            CharE:FindFirstChild("Humanoid").Died:Connect(function()
        			charRemoving(v)
        			repeat wait() until v.Character and v.Character.HumanoidRootPart
-				wait(1)
+				wait(2)
        			charAdded(v)
     		end);
        	end);
@@ -87,7 +133,7 @@ local function playerNew(plr)
        CharT:FindFirstChild("Humanoid").Died:Connect(function()
        		charRemoving(plr)
        		repeat wait() until plr.Character and plr.Character.HumanoidRootPart
-			wait(1)
+			wait(2)
        		charAdded(plr)
     	end);
    end);
@@ -101,13 +147,24 @@ local Render = RunService.Stepped:Connect(function()
 		pcall(function()
 		if not v.Char then return end;
 			if v.Char and v.Tracer ~= nil and v.Head then
-				v.Char:WaitForChild("HumanoidRootPart");
-				v.Char:WaitForChild("Head");
+				if v.Tracer == nil then
+					for i, v in next, ESP.Tracers do
+       					if v.Tracer == nil then
+           					v.Tracer:Remove();
+          				 	table.remove(ESP.Tracers, i);
+       					end;
+  					end;
+				end
 
+				repeat wait() until v.Char and v.Char.HumanoidRootPart and v.Char.Head
 				if v.Char and v.Tracer and v.Head and v.TeamRGB then
-					v.Tracer.To = GetView(v.Char.HumanoidRootPart.Position)[1]
-					v.Tracer.Visible = GetView(v.Char.HumanoidRootPart.Position)[2]
-					v.Tracer.Color = v.TeamRGB
+					local Point = GetView(v.Char.HumanoidRootPart.Position)
+					v.Tracer.To = Point[1]
+					if Toggle.Visibility then
+						v.Tracer.Visible = Point[2]
+					else
+						v.Tracer.Visible = false
+					end
 				end
 			end
 		end)
