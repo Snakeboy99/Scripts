@@ -1,0 +1,115 @@
+local ESP = {Tracers = {},ESPBox = {},ESPText = {}}
+
+if not game.Loaded then 
+	repeat wait() until game:IsLoaded() 
+end
+
+local Players = game:GetService("Players");
+local LocalPlayer = Players.LocalPlayer;
+local currentCamera = workspace.CurrentCamera;
+local RunService = game:GetService("RunService");
+local WorldToViewportPoint = currentCamera.WorldToViewportPoint;
+
+if not Players.LocalPlayer.Character then
+	repeat wait() until LocalPlayer.Character:FindFirstChild("Head") and LocalPlayer.Character:FindFirstChild("Humanoid")
+end
+
+function GetView(vector)
+    local Position, Screen = workspace.CurrentCamera:WorldToViewportPoint(vector)
+    return {Vector2.new(Position.X,Position.Y), Screen, Position.Z}
+end
+
+function charRemoving(char)
+   for i, v in next, ESP.Tracers do
+       if v.Char == char and v.Tracer ~= nil then
+           v.Tracer:Remove();
+           table.remove(ESP.Tracers, i);
+       end;
+   end;
+end;
+
+function charAdded(plr)
+	plr.Character:WaitForChild("Head");
+	plr.Character:WaitForChild("HumanoidRootPart");
+
+	local Line = Drawing.new("Line")
+	Line.From = Vector2.new(currentCamera.ViewportSize.X / 2, currentCamera.ViewportSize.Y);
+	Line.Color = plr.TeamColor.Color or Color3.fromRGB(255,255,255)
+	Line.Transparency = .4
+	Line.Thickness = 2
+
+	ESP.Tracers[#ESP.Tracers + 1] = {
+		Tracer = Line;
+		name = plr.Name;
+		Char = plr.Character;
+		Head = plr.Character.Head;
+		TeamRGB = plr.TeamColor.Color or Color3.fromRGB(255,255,255);
+	}
+end
+
+for i,v in pairs(Players:GetPlayers()) do
+	if v ~= Players.LocalPlayer then
+		local char = v.Character
+		if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("Head") then
+			char:WaitForChild("Head");
+			char:WaitForChild("HumanoidRootPart");
+
+			local Line = Drawing.new("Line")
+			Line.From = Vector2.new(currentCamera.ViewportSize.X / 2, currentCamera.ViewportSize.Y);
+			Line.Color = v.TeamColor.Color or Color3.fromRGB(255,255,255)
+			Line.Transparency = .4
+			Line.Thickness = 2
+					
+			ESP.Tracers[#ESP.Tracers + 1] = {
+				Tracer = Line;
+				name = v.Name;
+				Char = char;
+				Head = v.Character.Head;
+				TeamRGB = v.TeamColor.Color or Color3.fromRGB(255,255,255);
+			};
+		end
+		v.CharacterAdded:Connect(function(CharE)
+           charAdded(v);
+           CharE:FindFirstChild("Humanoid").Died:Connect(function()
+       			charRemoving(v)
+       			repeat wait() until v.Character and v.Character.HumanoidRootPart
+				wait(1)
+       			charAdded(v)
+    		end);
+       	end);
+       	v.CharacterRemoving:Connect(charRemoving);
+	end
+end
+
+local function playerNew(plr)
+   plr.CharacterAdded:Connect(function(CharT)
+       charAdded(plr);
+       CharT:FindFirstChild("Humanoid").Died:Connect(function()
+       		charRemoving(plr)
+       		repeat wait() until plr.Character and plr.Character.HumanoidRootPart
+			wait(1)
+       		charAdded(plr)
+    	end);
+   end);
+   plr.CharacterRemoving:Connect(charRemoving);
+end;
+
+game.Players.PlayerAdded:Connect(playerNew)
+
+local Render = RunService.Stepped:Connect(function()
+	for i,v in pairs(ESP.Tracers) do
+		pcall(function()
+		if not v.Char then return end;
+			if v.Char and v.Tracer ~= nil and v.Head then
+				v.Char:WaitForChild("HumanoidRootPart");
+				v.Char:WaitForChild("Head");
+
+				if v.Char and v.Tracer and v.Head and v.TeamRGB then
+					v.Tracer.To = GetView(v.Char.HumanoidRootPart.Position)[1]
+					v.Tracer.Visible = GetView(v.Char.HumanoidRootPart.Position)[2]
+					v.Tracer.Color = v.TeamRGB
+				end
+			end
+		end)
+	end
+end)
