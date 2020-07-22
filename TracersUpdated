@@ -182,7 +182,7 @@ local Render = RunService.Stepped:Connect(function()
 				end
 
 				repeat wait() until v.Char and v.Char.HumanoidRootPart
-				if v.Char and v.Tracer and v.BoxESP and v.TracerC then
+				if v.Char and v.Tracer and v.BoxESP then
 					local Point = GetView(v.Char.HumanoidRootPart.Position)
 					local rootPart,rootVisible = WorldToViewportPoint(currentCamera,v.Char.HumanoidRootPart.Position)
 					if rootVisible then
