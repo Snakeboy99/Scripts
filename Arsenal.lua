@@ -62,7 +62,7 @@ game:GetService("RunService").RenderStepped:Connect(function()
 	pcall(function()
 		if NoShakeCam then
 			debug.setconstant(ShakeFunc,7,0)
-    		debug.setconstant(ShakeFunc,16,0)
+    			debug.setconstant(ShakeFunc,16,0)
 		end;
 	end)
 end);
