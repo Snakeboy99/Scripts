@@ -217,7 +217,7 @@ local Render = RunService.Stepped:Connect(function()
 						v.Tracer.To = Point[1]
 						v.BoxESP.Size = Vector2.new(1400/rootPart.Z,2682/rootPart.Z)
 						v.BoxESP.Position = Vector2.new((rootPart.X) - v.BoxESP.Size.X/2,(rootPart.Y) - v.BoxESP.Size.Y/2)
-						v.NameTag.Position = Vector2.new((rootPart.X), (headPos.Y + v.BoxESP.Size.Y/2) - 25)
+						v.NameTag.Position = Vector2.new((rootPart.X), (rootPart.Y - v.BoxESP.Size.Y/2) - 16)
 						v.NameTag.Size = rootPart.X - v.NameTag.Size/2 - 16
 
 						v.Tracer.Visible = Toggle.VisibilityTracer and rootVisible
