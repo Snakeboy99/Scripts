@@ -1200,19 +1200,7 @@ ESPWindow:ColorPicker("ESP Color",Color3.fromRGB(0,255,0),function(EpicColor)
 	ColorNew = EpicColor;
 end)
 
-ESPWindow:Toggle("Test","Penis")
-
 spawn(function()
-	while wait(2.5) do
-		if ESPWindow.Flags.Penis then
-			print(true)
-		else
-			print(false)
-		end
-	end
-end)
-
-[spawn(function()
 	while wait() do
 		for i,v in pairs(ESP) do
 			if v.Char and v.Tracer and v.BoxESP and v.CharBox then
