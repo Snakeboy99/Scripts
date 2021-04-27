@@ -1,7 +1,7 @@
  local library = {flags = {}};
 local coreGui = game:GetService("CoreGui");
 
--- test
+-- WTF
 function createTween(Object,setup,settings)
 	local style = (settings.Style or Enum.EasingStyle.Sine);
 	local direction = (settings.Direction or Enum.EasingDirection.InOut);
