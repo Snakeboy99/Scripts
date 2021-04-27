@@ -768,25 +768,3 @@ function library.new(name, settings)
 end
 
 return library;
-
---[[local blueXLibrary = library.new("UI Library")
-local Player_Tab = blueXLibrary:make_tab("Player",true)
-local World_Tab = blueXLibrary:make_tab("Server")
-
-local Player = Player_Tab:addSection("LocalPlayer")
-Player:AddToggle("Fast Walk", false, function(a_1)
-    print(a_1)   
-end)
-
-Player:AddToggle("Infinite Jump", false, function(a_2)
-    print(a_2)   
-end)
-
-local World = World_Tab:addSection("World")
-World:AddToggle("Invisible Walls", false, function(b_1)
-    print(b_1)   
-end)
-
-World:AddToggle("Always Day", false, function(b_2)
-    print(b_2)   
-end)]]
