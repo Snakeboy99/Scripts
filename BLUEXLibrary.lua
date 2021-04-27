@@ -767,7 +767,9 @@ function library.new(name, settings)
     return UI; 
 end
 
-[[local blueXLibrary = library.new("UI Library")
+return library;
+
+--[[local blueXLibrary = library.new("UI Library")
 local Player_Tab = blueXLibrary:make_tab("Player",true)
 local World_Tab = blueXLibrary:make_tab("Server")
 
